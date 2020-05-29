@@ -1,0 +1,143 @@
+close all;
+clc;
+s=10;
+pic=imread("brain.jpg");
+pic=rgb2gray(pic);
+figure;
+imagesc(pic);
+colormap gray;
+pic=imresize(pic,[240 240]);
+an=double(pic);
+[m,n]=size(an);
+r=(m/s);
+c=(n/s);
+c1=[s*ones(1,r)];
+c2=[s*ones(1,c)];
+A=mat2cell(an,c1,c2);
+b=A(1,2);
+celldisp(b);
+b=mean(b);
+con=[avg*ones(s,s)];
+A(1,2)=con;
+celldisp(A(1,2));
+
+
+without overlapping 
+a=randi(100,20,5);
+%disp(a);
+z=[2*ones(1,10)];
+A=mat2cell(a,z,[2 3]);
+%disp(A);
+for i=1:10
+    for j=1:2
+        avg=mean(A{i,j},'all');
+        con=[avg*ones(size(A{i,j},1),size(A{i,j},2))];
+        %disp(A{i,j});
+        A{i,j}=con;
+        disp(A{i,j});
+    end
+end
+B=cell2mat(A);
+disp(B);
+
+DCT
+a=randi(100,20,5);
+%disp(a);
+z=[2*ones(1,10)];
+A=mat2cell(a,z,[2 3]);
+%disp(A);
+for i=1:10
+    for j=1:2
+        A{i,j}=dct(A{i,j});
+        %con=[avg*ones(size(A{i,j},1),size(A{i,j},2))];
+        %disp(A{i,j});
+        %A{i,j}=con;
+        disp(A{i,j});
+    end
+end
+B=cell2mat(A);
+disp(B);
+
+% quantization:
+N=2;
+quant = round(B ./ N);
+B=quant .* N;
+disp(B);
+
+finding 8 largest coeff
+B=cell2mat(A);
+%disp(B);
+for i=1:8
+maxi=max(B(:));
+[r c]=find(B==maxi);
+C(i)=round(maxi);
+D(i,1)=r;
+D(i,2)=c;
+B(r,c)=0;
+end
+%disp(B);
+%disp(C);
+%disp(D);
+
+L=zeros(20,5);
+
+for j=1:8
+    L(D(j,1),D(j,2))=C(j);
+end
+disp(L);
+
+inverse dct:
+Z=idct(B);
+disp(Z);
+
+fft:
+F=fft(A);
+
+I=rgb2ycbcr(A);
+imshow(A);
+figure;
+imshow(I);
+z=size(I);
+yc=I(:,:,1);
+cb=I(:,:,2);
+cr=I(:,:,3);
+A=zeros(size(I,1),size(I,2));
+c1=cat(3,yc,A,A);
+imshow(c1);
+
+
+I=imread("20150411_184555.jpg");
+I=rgb2gray(I);
+A=double(I);
+figure;
+%imagesc(A);
+colormap gray;
+N= 8;
+%we need matrix to store size,maxval,row,column
+S=size(A);
+for i=1:8
+maxi=max(A(:));
+disp(maxi);
+C(i)=maxi;
+disp(C);
+[r c]=find(A==maxi);
+T=size([r c]);%to know the number of same pixels in the matrix
+n_max(i)=T(1);
+
+ for j=1:T(1)
+     rw(i,j)=r(j);
+     cw(i,j)=c(j);
+     A(r(j),c(j))=0;
+ end
+end
+%disp(A);
+L=zeros(S(1),S(2));
+
+
+for k=1:N
+    for l=1:n_max(k)
+    L(rw(k,l),cw(k,l))=C(k);
+    end
+end
+%disp(L);
+%imshow(L);
